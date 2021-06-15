@@ -1,7 +1,7 @@
-d = {
-    1: 1,
-    2: 2
-}
-print(d)
-d.pop(1)
-print(d)
+import threading
+from subprocess import call
+
+def thread_second():
+    call(["python3", "test1.py"])
+processThread = threading.Thread(target=thread_second)  # <- note extra ','
+processThread.start()

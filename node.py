@@ -1,4 +1,5 @@
 import random, time
+import threading
 
 class ChordSystem:
     def __init__(self, m):
@@ -7,6 +8,7 @@ class ChordSystem:
         self.nodesid = []
         self.ip = {}
         self.ntotal = pow(2, m)
+        
     
     def add_new_node(self):
         poss_id = random.choice(list(set([i for i in range(self.ntotal)]) - set(self.nodesid)))
@@ -40,6 +42,7 @@ class ChordSystem:
     def update_tables_by_time(self):
         while True:
             time.sleep(60)
+            print('updating table')
             self.update_hash_table()
 
     def look_for_a_key(self, key):
@@ -100,16 +103,7 @@ class Node:
         
         self.ft[0]  = self.chord.nodesid[self.chord.nodesid.index(self.id) - 1] 
         self.ft[1:] = [self.finger(i) for i in range(1,self.m + 1)]     
-
-
-    def local_succ_node_(self, key): 
-        if self.inbetween(key, self.ft[0] + 1, self.id - 1):  
-            return self.ft[0]                                                   
-        elif self.inbetween(key, self.id + 1, self.ft[1]):                    
-            return self.ft[1]                                                 
-        for i in range(1, self.m):                                    
-            if self.inbetween(key, self.ft[i], self.ft[(i + 1) % self.nbits]):
-                return self.ft[i]  
+ 
 
     def local_succ_node(self, key):
         maxmin = self.id

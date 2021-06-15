@@ -1,8 +1,8 @@
-import Pyro5
 import Pyro5.api as pra
 from Pyro5.server import expose
 from node import Node, ChordSystem
 import threading
+import os
 
 m = 0
 
@@ -19,6 +19,7 @@ while True:
         print("Entrada invalida. La entrada debe ser un entero (int) mayor que 0.")
 
 chord = ChordSystem(m)
+
 
 @pra.expose
 class new_chord_node(object):
@@ -64,3 +65,4 @@ pra.Daemon.serveSimple(
     },
     ns=False, verbose=False, host="127.0.0.1", port=5600)
 
+os.system('python3 update_tables.py')
