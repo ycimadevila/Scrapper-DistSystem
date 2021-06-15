@@ -1,10 +1,9 @@
 import random, time
-from collections import OrderedDict
 
 class ChordSystem:
     def __init__(self, m):
         self.m = m
-        self.nodes = []
+        self.nodes = {}
         self.nodesid = []
         self.ip = {}
         self.ntotal = pow(2, m)
@@ -17,7 +16,7 @@ class ChordSystem:
         self.nodesid.sort()
 
         node = Node(poss_id, self.m, self)
-        self.nodes.append(node)
+        self.nodes[poss_id] = node
 
         first = len(self.nodes) == 1
         node.calculate_ft(first=first)
@@ -35,18 +34,34 @@ class ChordSystem:
 
     def update_hash_table(self):
         first = len(self.nodes) == 1
-        for node in self.nodes:
+        for node in self.nodes.values():
             node.calculate_ft(first=first)
 
     def update_tables_by_time(self):
         while True:
             time.sleep(60)
-            # print("Actualizando hash tables...")
             self.update_hash_table()
 
-    def look_for_a_key(self):
-        initial_node = self.nodesid[0]
-        current_node = initial_node
+    def look_for_a_key(self, key):
+        if key not in self.nodesid:
+            print(f"El nodo {key} no se encuentra en el conjunto.")
+            return
+        initial_node_id = self.nodesid[0]
+        current_id = initial_node_id
+
+        i = 1
+        while current_id != key:
+            current_node = self.nodes[current_id]
+            print(f'node: {current_id}, {current_node.id}')
+            current_id = current_node.local_succ_node(current_id)
+            print(current_id)
+            i += 1
+            if i > 30:
+                break
+        else:
+            print(f"El nodo {key} fue encontrado en {i} iteraciones.")
+            return
+        print("Error en la busqueda del nodo")
 
     
 class Node:
@@ -86,14 +101,30 @@ class Node:
         self.ft[1:] = [self.finger(i) for i in range(1,self.m + 1)]     
 
 
-    def local_succ_node(self, key): 
-        if self.inbetween(key, self.ft[0] + 1, self.id + 1):                  
-            return self.id                                                    
+    def local_succ_node_(self, key): 
+        if self.inbetween(key, self.ft[0] + 1, self.id - 1):  
+            print('sali1')                
+            return self.ft[0]                                                   
         elif self.inbetween(key, self.id + 1, self.ft[1]):                    
+            print('sali2')                
             return self.ft[1]                                                 
-        for i in range(1, self.nbits + 1):                                    
+        for i in range(1, self.m):                                    
             if self.inbetween(key, self.ft[i], self.ft[(i + 1) % self.nbits]):
+                print('sali3')                
                 return self.ft[i]  
+            print('ando dando vueltas')
+
+    def local_succ_node(self, key):
+        maxmin = self.ft[1]
+        for i in range(1, len(self.ft)):
+            if self.ft[i] > key:
+                break
+            maxmin = self.ft[i]
+        return maxmin
+
+            
+
+
 
 
 ####################################################################################################################

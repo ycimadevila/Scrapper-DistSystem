@@ -24,11 +24,19 @@ chord = ChordSystem(m)
 class new_chord_node(object):
     def call(self):
         chord.add_new_node()
+        # try:
+        #     chord.add_new_node()
+        # except KeyboardInterrupt:
+        #     print(f'el nodo {key} ha sido eliminado')
+        #     chord.delete_node()
 
 @pra.expose
 class new_client(object):
-    def call(self, args):
-        return chord.look_for_a_key()
+    def call(self, key):
+        if key < 0 or key > pow(2, m) - 1:
+            print('La llave a buscar no puede ser negativa o mayor que 2^m')
+            return
+        return chord.look_for_a_key(key)
 
 @pra.expose
 class finger_tables(object):
@@ -38,7 +46,7 @@ class finger_tables(object):
             print(f'node: - finger-table: -')
         else:
             print('\tFinger Table:')
-            for node in chord.nodes:
+            for node in chord.nodes.values():
                 print(f'node: {node.id} finger-table: {node.ft}')
 
 @pra.expose
