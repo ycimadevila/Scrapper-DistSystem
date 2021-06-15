@@ -1,25 +1,40 @@
 import Pyro5.api as pra
 from Pyro5.server import expose
 from node import Node, ChordSystem
-import threading
-import os
+import threading, os , sys
 
-m = 0
+
+#######################
+## GETTING ARGUMENTS ##
+#######################
 
 while True:
     try:
-        print('Entre la cantidad de bits necesarias: ')
-        m = int(input())
-        if m < 1:
-            raise TypeError()
-        print('Iniciando servidor...')
-        print('Servidor inicado.')
-        break
-    except TypeError:
-        print("Entrada invalida. La entrada debe ser un entero (int) mayor que 0.")
+        if len(sys.argv) == 2:
+            try:
+                m = int(sys.argv[1])
+                if m < 1:
+                    raise TypeError()
+                print('Iniciando servidor...')
+                print('Servidor inicado.')
+                break
+            except TypeError:
+                print("La entrada debe ser un entero positivo mayor o igual que 1")
+        else:
+            raise InterruptedError('Cantidad de argumentos invalida')
+    except InterruptedError as e:
+        print(e)
+        exit()
+
+################
+## INIT CHORD ##
+################
 
 chord = ChordSystem(m)
 
+#################
+## INIT SERVER ##
+#################
 
 @pra.expose
 class new_chord_node(object):
@@ -64,5 +79,3 @@ pra.Daemon.serveSimple(
         update_tables: "update"
     },
     ns=False, verbose=False, host="127.0.0.1", port=5600)
-
-os.system('python3 update_tables.py')
