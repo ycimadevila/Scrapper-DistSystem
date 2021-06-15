@@ -29,7 +29,7 @@ class ChordSystem:
             return
 
         self.nodesid.remove(_id)
-
+        self.nodes.pop(_id)
         self.update_hash_table()
 
     def update_hash_table(self):
@@ -43,20 +43,21 @@ class ChordSystem:
             self.update_hash_table()
 
     def look_for_a_key(self, key):
+        print(f"Iniciando búsqueda del nodo {key}.")
+
         if key not in self.nodesid:
             print(f"El nodo {key} no se encuentra en el conjunto.")
             return
-        initial_node_id = self.nodesid[0]
-        current_id = initial_node_id
+        
+        current_id = self.nodesid[0]
 
-        i = 1
+        i = 0
         while current_id != key:
             current_node = self.nodes[current_id]
-            print(f'node: {current_id}, {current_node.id}')
-            current_id = current_node.local_succ_node(current_id)
+            current_id = current_node.local_succ_node(key)
             print(current_id)
             i += 1
-            if i > 30:
+            if i > self.ntotal - 1: # forzando un caso de parada (just in case)
                 break
         else:
             print(f"El nodo {key} fue encontrado en {i} iteraciones.")
@@ -103,82 +104,20 @@ class Node:
 
     def local_succ_node_(self, key): 
         if self.inbetween(key, self.ft[0] + 1, self.id - 1):  
-            print('sali1')                
             return self.ft[0]                                                   
         elif self.inbetween(key, self.id + 1, self.ft[1]):                    
-            print('sali2')                
             return self.ft[1]                                                 
         for i in range(1, self.m):                                    
             if self.inbetween(key, self.ft[i], self.ft[(i + 1) % self.nbits]):
-                print('sali3')                
                 return self.ft[i]  
-            print('ando dando vueltas')
 
     def local_succ_node(self, key):
-        maxmin = self.ft[1]
+        maxmin = self.id
         for i in range(1, len(self.ft)):
-            if self.ft[i] > key:
+            if self.ft[i] == key:
+                maxmin = self.ft[i]
+                break
+            elif self.ft[i] > key:
                 break
             maxmin = self.ft[i]
         return maxmin
-
-            
-
-
-
-
-####################################################################################################################
-
-'''
-    def run(self): 
-        self.chan.bind(self.nodeID) 
-        self.addNode(self.nodeID) 
-        others = list(self.chan.channel.smembers('node') - set([str(self.nodeID)])) 
-        for i in others: 
-        self.addNode(i) 
-        self.chan.sendTo([i], (JOIN)) 
-        self.recomputeFingerTable() 
-    
-        while True: 
-            message = self.chan.recvFromAny() # Wait for any request 
-            sender  = message[0]              # Identify the sender 
-            request = message[1]              # And the actual request 
-            if request[0] != LEAVE and self.chan.channel.sismember('node',str(sender)): 
-                self.addNode(sender) 
-            if request[0] == STOP: 
-                break 
-            if request[0] == LOOKUP_REQ:                       # A lookup request 
-                nextID = self.localSuccNode(request[1])          # look up next node 
-                self.chan.sendTo([sender], (LOOKUP_REP, nextID)) # return to sender 
-                if not self.chan.exists(nextID): 
-                    self.delNode(nextID)    
-            elif request[0] == JOIN: 
-                continue 
-            elif request[0] == LEAVE: 
-                self.delNode(sender) 
-            self.recomputeFingerTable() 
-            print('FT[','%04d'%self.nodeID,']: ',['%04d' % k for k in self.FT]) #
- 
-class ChordClient: 
-    def __init__(self, chan):                
-        self.chan    = chan 
-        self.nodeID  = int(self.chan.join('client')) 
-    
-    def run(self): 
-        self.chan.bind(self.nodeID) 
-        procs = [int(i) for i in list(self.chan.channel.smembers('node'))] 
-        procs.sort() 
-        print(['%04d' % k for k in procs]) 
-        p = procs[random.randint(0,len(procs)-1)] 
-        key = random.randint(0,self.chan.MAXPROC-1) 
-        print(self.nodeID, "sending LOOKUP request for", key, "to", p) 
-        self.chan.sendTo([p],(LOOKUP_REQ, key)) 
-        msg = self.chan.recvFrom([p]) 
-        while msg[1][1] != p: 
-            p = msg[1][1] 
-            self.chan.sendTo([p],(LOOKUP_REQ, key)) 
-            msg = self.chan.recvFrom([p]) 
-        print(self.nodeID, "received final answer from", p) 
-        self.chan.sendTo(procs, (STOP)) 
- 
-'''
