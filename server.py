@@ -1,7 +1,6 @@
 import Pyro5.api as pra
-from Pyro5.server import expose
-from node import Node, ChordSystem
-import threading, os , sys
+from utils.node import ChordSystem
+import threading, sys
 
 
 #######################
@@ -40,11 +39,11 @@ chord = ChordSystem(m)
 class new_chord_node(object):
     def call(self):
         chord.add_new_node()
-        # try:
-        #     chord.add_new_node()
-        # except KeyboardInterrupt:
-        #     print(f'el nodo {key} ha sido eliminado')
-        #     chord.delete_node()
+
+@pra.expose
+class delete_chord_node(object):
+    def call(self, _id):
+        chord.delete_node(_id)
 
 @pra.expose
 class new_client(object):
@@ -73,7 +72,8 @@ class update_tables(object):
 
 pra.Daemon.serveSimple(
     {
-        new_chord_node: "chord",
+        new_chord_node: "newchord",
+        delete_chord_node: "delchord",
         new_client: "client",
         finger_tables: "ft",
         update_tables: "update"

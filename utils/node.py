@@ -11,22 +11,25 @@ class ChordSystem:
         
     
     def add_new_node(self):
-        poss_id = random.choice(list(set([i for i in range(self.ntotal)]) - set(self.nodesid)))
-        print("Se agrego el nodo:", poss_id)
+        if len(self.nodesid) != self.ntotal:
+            poss_id = random.choice(list(set([i for i in range(self.ntotal)]) - set(self.nodesid)))
+            print("Se agrego el nodo:", poss_id)
 
-        self.nodesid.append(poss_id)
-        self.nodesid.sort()
+            self.nodesid.append(poss_id)
+            self.nodesid.sort()
 
-        node = Node(poss_id, self.m, self)
-        self.nodes[poss_id] = node
+            node = Node(poss_id, self.m, self)
+            self.nodes[poss_id] = node
 
-        first = len(self.nodes) == 1
-        node.calculate_ft(first=first)
+            first = len(self.nodes) == 1
+            node.calculate_ft(first=first)
 
-        self.update_hash_table()
+            self.update_hash_table()
+        else:
+            print('El sistema esta lleno, no acepta nuevos nodos')
 
     def delete_node(self, _id):
-        if _id in self.nodesid: 
+        if _id not in self.nodesid: 
             print(f'No se pudo eliminar el nodo {_id} ya que no existe.')
             return
 
