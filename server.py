@@ -37,8 +37,8 @@ chord = ChordSystem(m)
 
 @pra.expose
 class new_chord_node(object):
-    def call(self):
-        chord.add_new_node()
+    def call(self, pid):
+        chord.add_new_node(pid)
 
 @pra.expose
 class delete_chord_node(object):

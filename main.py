@@ -32,6 +32,7 @@ def create_node(_time=False):
         time.sleep(random.randint(70, 500))
     subprocess.call(["python3", "utils/chord.py"])
     
+    
 def update_tables():
     subprocess.call(["python3", "utils/update_tables.py"])
 

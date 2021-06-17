@@ -1,19 +1,27 @@
-import random, time
-import threading
+import random, time, os
 
 class ChordSystem:
     def __init__(self, m):
         self.m = m
         self.nodes = {}
+        self.nodes_pid_id = {}
         self.nodesid = []
         self.ip = {}
         self.ntotal = pow(2, m)
         
+        self.urls = set()
+        self.url_location = {}
+        self.storage_nodes = {}
+        self.scrapper_nodes = {}
+        self.scrapper_nodes_available = set()
+        self.url_stack = []
     
-    def add_new_node(self):
+    def add_new_node(self, pid):
         if len(self.nodesid) != self.ntotal:
             poss_id = random.choice(list(set([i for i in range(self.ntotal)]) - set(self.nodesid)))
             print("Se agrego el nodo:", poss_id)
+
+            self.nodes_pid_id[pid] = poss_id
 
             self.nodesid.append(poss_id)
             self.nodesid.sort()
@@ -27,7 +35,8 @@ class ChordSystem:
             self.update_hash_table()
         else:
             print('El sistema esta lleno, no acepta nuevos nodos')
-
+            os.kill(pid, 1)
+            
     def delete_node(self, _id):
         if _id not in self.nodesid: 
             print(f'No se pudo eliminar el nodo {_id} ya que no existe.')
@@ -70,7 +79,31 @@ class ChordSystem:
             return
         print("Error en la busqueda del nodo")
 
-    
+    def append_url(self, url):
+        self.url_stack.append(url)
+
+    def get_html_from_url(self, url):
+        if url in self.urls:
+            counter = 120
+            while url not in self.url_location.keys():
+                time.sleep(.5)
+                counter -= 1
+                if counter == 0:
+                    break
+            else:
+                #buscar el nodo que contiene a la llave
+                node_id = self.url_location[url]
+                
+                pass
+        else:
+            # mandar a scrappear la url
+            if self.scrapper_nodes_available:
+                rd = random.randint(0, len(self.scrapper_nodes_available) - 1)
+                node_available = self.scrapper_nodes_available[rd]
+            else:
+                pass
+
+
 class Node:
     def __init__(self, id, m, chord_system):
         self.id = id
@@ -112,9 +145,9 @@ class Node:
         maxmin = self.id
         for i in range(1, len(self.ft)):
             if self.ft[i] == key:
-                maxmin = self.ft[i]
-                break
+                return self.ft[i]
             elif self.ft[i] > key:
                 break
-            maxmin = self.ft[i]
+            elif self.ft[i] > maxmin:
+                maxmin = self.ft[i]
         return maxmin

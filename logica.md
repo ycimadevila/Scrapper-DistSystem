@@ -1,8 +1,8 @@
 
-logica
+Lógica
 -
 
-todos los nodos pueden tener el mismo rol
+Todos los nodos pueden tener el mismo rol
 
 > - en este caso serán de almacenamiento 
 

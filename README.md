@@ -6,8 +6,9 @@
 ### Jessy Gigato Izquiedo C411
 \
 \
-La biblioteca usada fue:
+Las bibliotecas usadas fueron:
 Pyro5==5.12
+psutil==5.8.0
 
 Para una previa instalación de la misma en caso de no tenerla:
 
