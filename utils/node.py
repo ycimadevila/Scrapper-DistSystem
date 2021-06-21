@@ -1,10 +1,7 @@
 from Pyro5.api import Daemon, Proxy, expose, locate_ns
-import random
-
-try:
-    from utils.const import *
-except: 
-    from const import *
+import random, os
+from urllib.request import urlopen
+from utils.const import *
 
 
 class ChordSystem:
@@ -16,6 +13,9 @@ class ChordSystem:
         self.ntotal = pow(2, m)
         self.total_nodes = set(range(self.ntotal))
 
+    @staticmethod
+    def node_chord_uri(_id):
+        return f"PYRONAME:user.chord.{_id}"
 
     def register_node_chord(self, node: 'ChordNode'):
         object_id = f"user.chord.{node.id}"
@@ -23,7 +23,6 @@ class ChordSystem:
         self.locate_ns.register(
             object_id, uri, metadata=["user.chord"]
         )
-        print(self.locate_ns)
         return uri
 
     def get_id_available(self):
@@ -45,10 +44,12 @@ class ChordSystem:
         except:
             pass
 
-    @staticmethod
-    def node_chord_uri(_id):
-        return f"PYRONAME:user.chord.{_id}"
     
+    def get_chord_node(self, _id):
+        uri = self.node_chord_uri(_id)
+        return Proxy(uri)
+        
+
     def look_for_a_key(self, key):
         print(f"Iniciando búsqueda del nodo {key}.")
 
@@ -70,6 +71,7 @@ class ChordSystem:
             print(f"El nodo {key} fue encontrado en {i} iteraciones.")
             return
         print("Error en la busqueda del nodo")
+
 '''
     # def add_new_node(self, pid):
     #     if len(self.nodesid) != self.ntotal:
@@ -150,11 +152,49 @@ class ChordNode:
         self.ft = [0 for _ in range(m + 1)]
         self.nodesid = [self.id]
 
+        # (url, filename)
+        self.storage_filename = {}
+
+    #############################
+    # storage and scrap methods #
+    #############################
+
+    def storage_html(self, url, html: str, filename):
+        try:
+            os.mkdir('downloads')
+        except FileExistsError:
+            pass
+        f = open (f'downloads/{filename}.txt','w')
+        f.write(html)
+        f.close()
+        self.storage_filename[url] = filename
+
+    def get_html(self, url):
+        filename = self.storage_filename[url]
+        f = open (f'downloads/{filename}.txt','r')
+        html = f.read()
+        f.close()
+        return html
+
+    def scrap_url(self, url):
+        print(f'Scrapping {url}')
+        try:
+            page = urlopen(url) # devuelve un objeto HTTPResponse
+
+            html_bytes = page.read() # devuelve el html como una secuencia de bytes
+            html = html_bytes.decode("utf-8") # convierte a string
+        except:
+            html = None
+        print('Scrap Done!')
+        return html
+
+
+    #################
+    # chord methods #
+    #################
+
     def get_id(self):
         return self.id
-              
-    def get_ft_values(self):
-        return set(self.ft)
         
     def predecessor(self):
         return self.ft[0]

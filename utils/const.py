@@ -1,3 +1,4 @@
+# basic contants
 host__ = 'localhost'
 port__ = 9090
 ns_host__ = 'localhost'

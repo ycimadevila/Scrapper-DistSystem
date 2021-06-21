@@ -20,9 +20,10 @@ Para una previa instalación de la misma en caso de no tenerla:
 Pasos para iniciar el servidor que implementa el algoritmo de chord
 
 \
-Para ejecutar el código inicialmente se debe de levantar el servidor:
+Para ejecutar el código inicialmente se debe de levantar el servidor y el router:
 
-> python3 server.py m
+> python3 server.py start-service
+> python3 router.py m
 
 donde 'm' representa la contidad de bits para el sistema chord
 
