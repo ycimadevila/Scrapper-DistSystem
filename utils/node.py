@@ -171,10 +171,13 @@ class ChordNode:
 
     def get_html(self, url):
         filename = self.storage_filename[url]
-        f = open (f'downloads/{filename}.txt','r')
-        html = f.read()
-        f.close()
-        return html
+        try:
+            f = open (f'downloads/{filename}.txt','r')
+            f.read()
+            f.close()
+            return filename
+        except:
+            return None
 
     def scrap_url(self, url):
         print(f'Scrapping {url}')

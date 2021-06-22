@@ -18,7 +18,7 @@ class Router:
         self.scrapper_nodes = []
         self.scrapper_nodes_available = []       
 
-        self.rand = random.Random(666)
+        self.rand = random.Random(656)
         self.scrap_count = 0
         self.alive_nodes = []
         self.all_nodes = set(range(pow(2, m__)))
@@ -61,11 +61,12 @@ class Router:
         return self.rand.randint(lwb, upb)
 
 
-    def storage_url_id_add_init(self, key, value):
-        self.storage_url_id[key] = [value]
+    def storage_url_id_add(self, key, value):
+        if key not in self.storage_url_id.keys():
+            self.storage_url_id[key] = [value]
+        else:
+            self.storage_url_id[key].append(value)
     
-    def storage_url_id_add_another(self, key, value):
-        self.storage_url_id[key].append(value)
 
     def storage_url_id_remove_url(self, key):
         self.storage_url_id.pop(key)
@@ -88,13 +89,19 @@ class Router:
         self.storage_nodes.append(id)
         
     def storage_nodes_remove(self, id):
-        self.storage_nodes.remove(id)
+        try:
+            self.storage_nodes.remove(id)
+        except:
+            pass
         
     def scrapper_nodes_add(self, id):
         self.scrapper_nodes.append(id)
 
     def scrapper_nodes_remove(self, id):
-        self.scrapper_nodes.remove(id)
+        try:
+            self.scrapper_nodes.remove(id)
+        except:
+            pass
 
         
     def scrapper_nodes_available_add(self, id):

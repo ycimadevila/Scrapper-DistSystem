@@ -23,21 +23,14 @@ Pasos para iniciar el servidor que implementa el algoritmo de chord
 Para ejecutar el código inicialmente se debe de levantar el servidor y el router:
 
 > python3 server.py start-service
-> python3 router.py m
-
-donde 'm' representa la contidad de bits para el sistema chord
+> python3 router.py 
 
 \
 Para agregar una cantidad aleatoria de nodos al sistema distribuido:
 
-> python3 main.py m
+> python3 mserver.py add-chord
 
 \
-Para realizar la búsqueda de un cliente se ejecuta:
+Para realizar la búsqueda  de la URL se ejecuta:
 
-> python3 client.py 
-
-\
-Para ver el estado de la finger-table ejecute:
-
-> python3 check_finger_table.py
+> python3 server.py scrap url
