@@ -10,21 +10,11 @@ prog = typer.Typer()
 
 
 @prog.command()
-def test(id):
-    system = ChordSystem(m__)
-    nodes = system.locate_ns.yplookup(meta_all=["user.chord"])
-    for node in nodes:
-        print(node, type(node))
-    node = pra.Proxy(f"PYRONAME:user.chord.{id}")
-    print(node)
-
-@prog.command()
 def update_deleted_node():
     try:
         router = pra.Proxy(f"PYRONAME:user.router")
         while True:
             id_available = router.get_alive_nodes()
-            print(id_available)
             deleted_nodes = set()
 
             for _id in id_available:
@@ -54,7 +44,6 @@ def update_deleted_node():
                 router.scrapper_nodes_remove(del_id)
                 router.storage_nodes_remove(del_id)
             
-            print(router.get_storage_url_id())
             print('Searching for deleted nodes...')
             time.sleep(5)
 
@@ -78,7 +67,7 @@ def update_finger_tables():
                         greeting_maker.add_node(i)
                     greeting_maker.calculate_ft()
                 except:
-                    print(_id)
+                    print(f'Node {_id} was deleted...')
             print('update hash table')
             time.sleep(6)
     except KeyboardInterrupt:
@@ -117,28 +106,24 @@ def add_chord():
 
     poss_id = router.get_available_id()
 
-    
-    print('id', id)
     router.alive_nodes_add(poss_id)
 
     if not router.get_storage_nodes():
         router.storage_nodes_add(poss_id)
-        print('New Storage Node', router.get_storage_nodes())
+        print('New Storage Node')
     elif not router.get_scrapper_nodes():
         router.scrapper_nodes_add(poss_id)
         router.scrapper_nodes_available_add(poss_id)
-        print('New Scrapper Node', router.get_scrapper_nodes())
+        print('New Scrapper Node')
     else:
         if len(router.get_storage_nodes()) < len(router.get_scrapper_nodes()):
             router.storage_nodes_add(poss_id)
-            print('New Storage Node', router.get_storage_nodes())
+            print('New Storage Node')
         else:
             router.scrapper_nodes_add(poss_id)
-            print('New Scrapper Node', router.get_scrapper_nodes())
-    print('\n\n')
+            print('New Scrapper Node')
 
     alive_nodes = router.get_alive_nodes()
-    print(alive_nodes)
 
     node = ChordNode(poss_id, m__)
     for _id in alive_nodes:
@@ -185,8 +170,6 @@ def scrap(url):
         rd = router.get_storage_nodes()
         rd = rd[random.randint(0, len(rd) - 1)]
         node = search_for_node(rd)
-        print(node)
-        # nextid = node.succesor()
 
         # add url into node and add (url: nodeid) to {storage_url_id}
         filename = f'arch_{router.get_scrap_count()}'
@@ -199,7 +182,6 @@ def scrap(url):
             if ind == len(storage_nodes):
                 ind = 0
             nextid = storage_nodes[ind]
-            print('nodeeeeeeeeeeeeeeeeeeeeeees ->', rd, nextid)
             router.storage_url_id_add(url, nextid)
             nextnode = search_for_node(nextid)
             nextnode.storage_html(url, html, filename)
@@ -249,8 +231,6 @@ def scrap(url):
 
         # get filename and load html
         filename = node.get_html(url)
-
-        print(filename)
 
         print (f'The url is stored in file: downloads/{filename}')
         # return html

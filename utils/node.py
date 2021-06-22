@@ -63,7 +63,7 @@ class ChordSystem:
         while current_id != key:
             current_node = self.nodes[current_id]
             current_id = current_node.local_succ_node(key)
-            print(current_id)
+
             i += 1
             if i > self.ntotal - 1: # forzando un caso de parada (just in case)
                 break
@@ -72,74 +72,6 @@ class ChordSystem:
             return
         print("Error en la busqueda del nodo")
 
-'''
-    # def add_new_node(self, pid):
-    #     if len(self.nodesid) != self.ntotal:
-    #         poss_id = random.choice(list(set([i for i in range(self.ntotal)]) - set(self.nodesid)))
-    #         print("Se agrego el nodo:", poss_id)
-
-    #         self.nodes_pid_id[pid] = poss_id
-
-    #         self.nodesid.append(poss_id)
-    #         self.nodesid.sort()
-
-    #         node = Node(poss_id, self.m, self)
-    #         self.nodes[poss_id] = node
-
-    #         first = len(self.nodes) == 1
-    #         node.calculate_ft(first=first)
-
-    #         self.update_hash_table()
-    #     else:
-    #         print('El sistema esta lleno, no acepta nuevos nodos')
-    #         os.kill(pid, 1)
-            
-    # def delete_node(self, _id):
-    #     if _id not in self.nodesid: 
-    #         print(f'No se pudo eliminar el nodo {_id} ya que no existe.')
-    #         return
-
-    #     self.nodesid.remove(_id)
-    #     self.nodes.pop(_id)
-    #     self.update_hash_table()
-
-    # def update_hash_table(self):
-    #     first = len(self.nodes) == 1
-    #     for node in self.nodes.values():
-    #         node.calculate_ft(first=first)
-
-    # def update_tables_by_time(self):
-    #     while True:
-    #         time.sleep(60)
-    #         print('updating table')
-    #         self.update_hash_table()
-
-    
-
-    # def append_url(self, url):
-    #     self.url_stack.append(url)
-
-    # def get_html_from_url(self, url):
-    # if url in self.urls:
-    #     counter = 120
-    #     while url not in self.url_location.keys():
-    #         time.sleep(.5)
-    #         counter -= 1
-    #         if counter == 0:
-    #             break
-    #     else:
-    #         #buscar el nodo que contiene a la llave
-    #         node_id = self.url_location[url]
-            
-    #         pass
-    # else:
-    #     # mandar a scrappear la url
-    #     if self.scrapper_nodes_available:
-    #         rd = random.randint(0, len(self.scrapper_nodes_available) - 1)
-    #         node_available = self.scrapper_nodes_available[rd]
-    #     else:
-    #         pass
-'''
                     
 
 @expose

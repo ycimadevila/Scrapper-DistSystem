@@ -10,7 +10,6 @@ def __update_deleted_node__():
         router = pra.Proxy(f"PYRONAME:user.router")
         while True:
             id_available = router.get_alive_nodes()
-            print(id_available)
             deleted_nodes = set()
 
             for _id in id_available:
@@ -72,7 +71,7 @@ def search_for_node(key_):
     router = pra.Proxy(f'PYRONAME:user.router')
     actv_nodes = router.get_alive_nodes()
 
-    rd_node = random.choice(list(actv_nodes))
+    rd_node = list(set(actv_nodes))[0]
     if key not in actv_nodes:
         print('Key isn\'t in the set.')
         return None
@@ -85,11 +84,9 @@ def search_for_node(key_):
         i = 0
         # get the node to use
         node = system.get_chord_node(rd_node) 
-        print(type(node), node.get_id())
 
         while node.get_id() != key:
             nextid = node.local_succ_node(key)
-            print('nextid', nextid)
             if nextid not in actv_nodes:
                 __update_deleted_node__()
                 __update_finger_tables__()
@@ -97,11 +94,9 @@ def search_for_node(key_):
 
             i += 1
             if i > pow(2, m__) - 1: # stop case (just in case)
-                print('sdfghjkl', key)
                 break
             
             node = pra.Proxy(f"PYRONAME:user.chord.{nextid}")
-            print(node.get_id())
         else:
             return node
         
