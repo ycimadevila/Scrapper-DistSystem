@@ -1,6 +1,7 @@
 
 from Pyro5.api import Daemon, expose, locate_ns
 import random
+from utils.const import * 
 
 
 @expose
@@ -15,12 +16,25 @@ class Router:
         # containers
         self.storage_nodes = []
         self.scrapper_nodes = []
-        self.scrapper_nodes_available = []
-
+        self.scrapper_nodes_available = []       
 
         self.rand = random.Random(666)
         self.scrap_count = 0
+        self.alive_nodes = []
+        self.all_nodes = set(range(pow(2, m__)))
+
+    def get_alive_nodes(self):
+        return [_ for _ in self.alive_nodes]
+
+    def alive_nodes_add(self, id):
+        self.alive_nodes.append(id)
     
+    def alive_nodes_remove(self, list):
+        for id in list:
+            self.alive_nodes.remove(id)
+
+    def get_available_id(self):
+        return random.choice(list(self.all_nodes - set(self.alive_nodes)))
 
     def get_scrap_count(self):
         return self.scrap_count
@@ -47,12 +61,21 @@ class Router:
         return self.rand.randint(lwb, upb)
 
 
-    def storage_url_id_add(self, key, value):
-        self.storage_url_id[key] = value
+    def storage_url_id_add_init(self, key, value):
+        self.storage_url_id[key] = [value]
     
-    def storage_url_id_remove(self, key):
+    def storage_url_id_add_another(self, key, value):
+        self.storage_url_id[key].append(value)
+
+    def storage_url_id_remove_url(self, key):
         self.storage_url_id.pop(key)
     
+    def storage_url_id_remove_id(self, key, id):
+        self.storage_url_id[key].remove(id)
+        # del key (information get lost)
+        if not self.storage_url_id[key]:
+            self.storage_url_id.pop(key)
+
 
     def scrapping_url_add(self, url):
         self.scrapping_url.append(url)

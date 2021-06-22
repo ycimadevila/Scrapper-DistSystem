@@ -185,7 +185,7 @@ class ChordNode:
             html = html_bytes.decode("utf-8") # convierte a string
         except:
             html = None
-        print('Scrap Done!')
+        print('Scrap Done!\n\nWaiting')
         return html
 
 
@@ -213,7 +213,7 @@ class ChordNode:
     
     def del_node(self, _id):
         try:
-            self.nodesid.remove(_id)
+            self.nodesid.discard(_id)
             self.calculate_ft()
         except KeyError:
             pass

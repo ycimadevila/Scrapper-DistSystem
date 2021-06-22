@@ -18,88 +18,109 @@ def test(id):
     node = pra.Proxy(f"PYRONAME:user.chord.{id}")
     print(node)
 
+@prog.command()
+def update_deleted_node():
+    try:
+        router = pra.Proxy(f"PYRONAME:user.router")
+        while True:
+            id_available = router.get_alive_nodes()
+            print(id_available)
+            deleted_nodes = set()
+
+            for _id in id_available:
+                try:
+                    n = pra.Proxy(f"PYRONAME:user.chord.{_id}")
+                    n.get_id()
+                except:
+                    print(f"Deleted node detected -> {_id}")
+                    deleted_nodes.add(_id)
+            
+            router.alive_nodes_remove(deleted_nodes)
+            
+            print(router.get_alive_nodes())
+
+            for _ in router.get_alive_nodes():
+                for del_id in deleted_nodes:
+                    try:
+                        greeting_maker = pra.Proxy(f"PYRONAME:user.chord.{_id}") 
+                        greeting_maker.del_node(del_id)
+                    except:
+                        print(del_id, _id)
+
+            
+            print('Searching for deleted nodes...')
+            time.sleep(15)
+
+    except KeyboardInterrupt:
+        print('Closing...')
+        exit(1)
+    except:
+        print('Closing by error...')
+        pass
+
+@prog.command()
+def update_finger_tables():
+    try:
+        router = pra.Proxy(f"PYRONAME:user.router")
+        while True:
+            id_available = router.get_alive_nodes()
+            print(id_available)
+            for _id in id_available:
+                try:
+                    greeting_maker = pra.Proxy(f"PYRONAME:user.chord.{_id}")
+                    for i in id_available:
+                        greeting_maker.add_node(i)
+                    greeting_maker.calculate_ft()
+                except:
+                    print(_id)
+            print('update hash table')
+            time.sleep(20)
+    except KeyboardInterrupt:
+        exit(1)
+    except:
+        pass
 
 @prog.command()
 def fingertable():
-    system = ChordSystem(m__)
-    id_available = system.get_alive_chord_identifier()
+    router = pra.Proxy(f'PYRONAME:user.router')
+    id_available = router.get_alive_nodes()
     
     for _id in id_available:
         node = pra.Proxy(f"PYRONAME:user.chord.{_id}") 
         print(f'{_id} -> {node.get_finger_table()}')
 
-
 @prog.command()
 def active_nodes():
-    system = ChordSystem(m__)
-    id_available = system.get_alive_chord_identifier()
+    router = pra.Proxy(f'PYRONAME:user.router')
+    id_available = router.get_alive_nodes()
     
     for _id in id_available:
         print(_id)
-
 
 @prog.command()
 def start_service():
     uri, daemon, _ = ns.start_ns(host=host__, port=port__)
     print(f"NS running on {uri.location}")
     print(f"URI => {uri.protocol}:{uri.object}@{uri.location}")
-    
-    try:
-        threading.Thread(target=update_node).start()
-        threading.Thread(target=update_finger_tables).start()
-    except:
-        pass
-    
     daemon.requestLoop()
-
-
-@prog.command()
-def client(id_):
-    key = int(id_)
-    system = ChordSystem(m__)
-    actv_nodes = system.get_alive_chord_identifier()
-
-    rd_node = random.choice(list(actv_nodes))
-    if key not in actv_nodes:
-        print('La llave no existe en el conjunto.')
-
-    else:
-        if rd_node not in actv_nodes:
-            actv_nodes = system.get_alive_chord_identifier()
-            rd_node = random.choice(list(actv_nodes))
-        
-        i = 0
-        # get the node to use
-        node = system.get_chord_node(rd_node) 
-        print(type(node), node.get_id())
-
-        while node.get_id() != key:
-            nextid = node.local_succ_node(key)
-            print(nextid)
-            if nextid not in actv_nodes:
-                update_all_nodes_after_deleting(nextid)
-                nextid = node.local_succ_node(key)
-
-            i += 1
-            if i > pow(2, m__) - 1: # forzando un caso de parada (just in case)
-                break
-            
-            node = pra.Proxy(f"PYRONAME:user.chord.{nextid}")
-            print(node.get_id())
-        else:
-            print('El nodo fue encontrado')
-            return
-
 
 @prog.command()
 def add_chord(id):
     system = ChordSystem(m__)
     router = pra.Proxy(f'PYRONAME:user.router')
     print(router)
+
     if id is None:
         poss_id = int(id)
     else:
-        poss_id = system.get_id_available()
+        print('hey', router.get_alive_nodes())
+
+        poss_id = router.get_available_id()
+        print('hey')
+
+    
+    print('id', id)
+    router.alive_nodes_add(poss_id)
 
     if not router.get_storage_nodes():
         router.storage_nodes_add(poss_id)
@@ -118,9 +139,10 @@ def add_chord(id):
         else:
             router.scrapper_nodes_add(poss_id)
             print('New Scrapper Node', router.get_scrapper_nodes())
-    print('paso\n\n')
+    print('\n\n')
 
-    alive_nodes = system.get_alive_chord_identifier()
+    alive_nodes = router.get_alive_nodes()
+    print(alive_nodes)
 
     node = ChordNode(poss_id, m__)
     for _id in alive_nodes:
@@ -130,10 +152,9 @@ def add_chord(id):
 
     system.register_node_chord(node)
     
-    print('Waiting')
+    print('Waiting\n\n')
     system.requestLoop()
 
-   
 @prog.command()
 def scrap(url):
     
@@ -175,10 +196,13 @@ def scrap(url):
         
         # return html
         print (html)
+        return html
         
     elif url in router.get_storage_url_id().keys():
+        print('Searching in Data Base...')
+
         # get nodeid from storage_url_id 
-        nodeid = router.get_storage_url_id(url)
+        nodeid = router.get_storage_url_id()[url][0]
         
         # search for node into chord ring 
         node = search_for_node(nodeid)
@@ -191,25 +215,30 @@ def scrap(url):
 
     elif url in router.get_scrapping_url():
         # wait until the url is scrapped
+        timeout = 0
         while url in router.get_scrapping_url():
+            timeout += 1
+            if timeout == 120:
+                break
             time.sleep(1)
         
-        if router.get_storage_url_id().keys():
+        if url not in router.get_storage_url_id().keys():
             print('The Url can\'t be scrapped')
             return
 
+        print('Searching in Data Base...')
         # get nodeid from storage_url_id 
-        nodeid = router.get_storage_url_id(url)
+        nodeid = router.get_storage_url_id()[url][0]
         
         # search for node into chord ring 
         node = search_for_node(nodeid)
 
         # get filename and load html
         html = node.get_html(url)
-
+        
+        print(html)
         # return html
         return html    
-
 
 
 if __name__ == "__main__":
