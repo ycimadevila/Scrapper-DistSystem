@@ -44,7 +44,7 @@ def update_deleted_node():
                 router.scrapper_nodes_remove(del_id)
                 router.storage_nodes_remove(del_id)
             
-            print('Searching for deleted nodes...')
+            # print('Searching for deleted nodes...')
             time.sleep(5)
 
     except KeyboardInterrupt:
@@ -68,7 +68,7 @@ def update_finger_tables():
                     greeting_maker.calculate_ft()
                 except:
                     print(f'Node {_id} was deleted...')
-            print('update hash table')
+            # print('update hash table')
             time.sleep(6)
     except KeyboardInterrupt:
         exit(1)
@@ -159,6 +159,7 @@ def scrap(url):
 
         if html is None:
             print('The Url can\'t be scrapped')
+            router.scrapper_nodes_available_add(rd)
             return
             
         # del url to [scrapping_url] and putting the node available again
@@ -175,8 +176,6 @@ def scrap(url):
         filename = f'arch_{router.get_scrap_count()}'
         router.storage_url_id_add(url, rd)
         
-
-
         if len(storage_nodes) > 1:
             ind = storage_nodes.index(rd) + 1
             if ind == len(storage_nodes):

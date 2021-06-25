@@ -23,15 +23,9 @@ Pasos para iniciar el servidor que implementa el algoritmo de chord
 \
 Para ejecutar el código inicialmente se debe de levantar el servidor y el router:
 
-> python3 server.py start-service
->
-> python3 router.py 
+> python3 main.py
 
-\
-Los procesos siguientes son los encargados de mantener el sistema en buen estado:
-> python3 server.py update-deleted-node
->
-> python3 server.py update-finger-tables
+Debe de esperar hasta que la terminal le diga que el servicio esta listo. 
 
 \
 Para agregar nodos de forma aleatoria al sistema distribuido (cada uno de los nodos ejecutarlos en una termnal diferente):
