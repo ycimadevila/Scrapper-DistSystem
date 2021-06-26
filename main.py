@@ -1,4 +1,5 @@
-import time, subprocess, threading
+import time, subprocess, threading, sys
+
 
 def init():
     subprocess.call(['python3', 'server.py', 'start-service'])
@@ -14,8 +15,8 @@ def nodes():
 
 if __name__ == "__main__":
     threading.Thread(target=init).start()
-    time.sleep(2)
-    
+    time.sleep(1)
+
     threading.Thread(target=router).start()
     time.sleep(1)
 

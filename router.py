@@ -81,7 +81,10 @@ class Router:
         self.scrapping_url.append(url)
     
     def scrapping_url_remove(self, url):
-        self.scrapping_url.remove(url)
+        try:
+            self.scrapping_url.remove(url)
+        except:
+            pass
 
     
     def storage_nodes_add(self, id):

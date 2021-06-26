@@ -1,3 +1,4 @@
+import re
 from Pyro5.client import Proxy
 from socket import socket
 import Pyro5.nameserver as ns
@@ -140,7 +141,6 @@ def add_chord():
 
 @prog.command()
 def scrap(url):
-    
     router = pra.Proxy(f'PYRONAME:user.router@{host__}:{port__}')
     if not router.get_scrapper_nodes() and not router.get_storage_nodes() \
             and not router.get_scrapper_nodes_available() \
@@ -148,20 +148,38 @@ def scrap(url):
         print('Unavailable System')
         return
     if url not in router.get_storage_url_id().keys() and url not in router.get_scrapping_url():
+        
         # add url to [scrapping_url]
         router.scrapping_url_add(url)
         
         # select available scrapper node (random)
         rd = router.get_scrapper_nodes_available()
+        if not rd and router.get_scrapping_url():
+            timeout = 0
+            while True:
+                if timeout == 30:
+                    break
+                time.sleep(1)
+                timeout += 1
+            print('Request out of time')
+            return
+
         if not rd:
             print('Unavailable System')
+            router.scrapping_url_remove(url)
             return
         rd = rd[random.randint(0, len(rd) - 1)]
         router.scrapper_nodes_available_remove(rd)
         
         # scrappe url
-        node = Proxy(f'PYRONAME:user.chord.{rd}@{host__}:{port__}')
-        html = node.scrap_url(url)
+        try:
+            node = Proxy(f'PYRONAME:user.chord.{rd}@{host__}:{port__}')
+            html = node.scrap_url(url)
+        except:
+            print('Scrapper Node is down... URL cannot be Scraped')
+            router.scrapper_nodes_remove(rd)
+            router.scrapping_url_remove(url)
+            return
 
         if html is None:
             print('The Url can\'t be scrapped')
@@ -205,6 +223,7 @@ def scrap(url):
         return html
         
     elif url in router.get_storage_url_id().keys() and router.get_storage_nodes():
+        
         print('Searching in Data Base...')
 
         # get nodeid from storage_url_id 
@@ -249,9 +268,11 @@ def scrap(url):
             return filename 
         else: 
             print("Unavailable System")
+            return
     
     elif not router.get_storage_nodes():
         print("Unavailable System: Storage not Found")
+        return
 
 if __name__ == "__main__":
     prog()

@@ -91,7 +91,7 @@ def search_for_node(key_):
 
         while node.get_id() != key:
             nextid = node.local_succ_node(key)
-            if nextid not in actv_nodes:
+            if nextid not in router.get_alive_nodes():
                 __update_deleted_node__()
                 __update_finger_tables__()
                 nextid = node.local_succ_node(key)
