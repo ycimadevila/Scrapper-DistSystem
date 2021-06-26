@@ -7,15 +7,15 @@ from utils.const import *
 class ChordSystem:
     def __init__(self, m):
         self.daemon = Daemon()
-        self.locate_ns = locate_ns()
+        self.locate_ns = locate_ns(host=host__, port=port__)
 
         self.m = m
         self.ntotal = pow(2, m)
         self.total_nodes = set(range(self.ntotal))
 
     @staticmethod
-    def node_chord_uri(_id):
-        return f"PYRONAME:user.chord.{_id}"
+    def node_chord_uri(_id, _host, _port):
+        return f"PYRONAME:user.chord.{_id}@{_host}:{_port}"
 
     def register_node_chord(self, node: 'ChordNode'):
         object_id = f"user.chord.{node.id}"
@@ -46,7 +46,7 @@ class ChordSystem:
 
     
     def get_chord_node(self, _id):
-        uri = self.node_chord_uri(_id)
+        uri = self.node_chord_uri(_id, host__, port__)
         return Proxy(uri)
         
 

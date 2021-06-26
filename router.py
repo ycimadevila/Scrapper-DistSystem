@@ -1,4 +1,3 @@
-
 from Pyro5.api import Daemon, expose, locate_ns
 import random
 from utils.const import * 
@@ -100,6 +99,7 @@ class Router:
     def scrapper_nodes_remove(self, id):
         try:
             self.scrapper_nodes.remove(id)
+            self.scrapper_nodes_available.remove(id)
         except:
             pass
 
@@ -112,7 +112,7 @@ class Router:
 
 
 daemon = Daemon()
-ns = locate_ns() 
+ns = locate_ns(host=host__, port=port__) 
 uri = daemon.register(Router(), "user.router")
 print(uri)
 ns.register(f"user.router", uri, metadata=["user.router"])
