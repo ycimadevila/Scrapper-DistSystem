@@ -25,7 +25,7 @@ Para ejecutar el código inicialmente se debe de levantar el servidor y el route
 
 > python3 main.py
 
-Debe de esperar hasta que la terminal le diga que el servicio esta listo. 
+Debe de esperar hasta que la terminal le diga que el servicio esta listo (Service is Ready!). 
 
 \
 Para agregar nodos de forma aleatoria al sistema distribuido (cada uno de los nodos ejecutarlos en una termnal diferente):

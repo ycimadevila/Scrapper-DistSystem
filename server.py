@@ -148,7 +148,6 @@ def scrap(url):
         print('Unavailable System')
         return
     if url not in router.get_storage_url_id().keys() and url not in router.get_scrapping_url():
-        
         # add url to [scrapping_url]
         router.scrapping_url_add(url)
         
@@ -215,6 +214,7 @@ def scrap(url):
             nextnode = search_for_node(nextid)
             nextnode.storage_html(url, html, filename)
         
+        # print(url, router.get_storage_url_id())
         node.storage_html(url, html, filename)
         router.increment_scrap_count()
         
@@ -242,15 +242,88 @@ def scrap(url):
     elif url in router.get_scrapping_url() and router.get_storage_nodes():
         # wait until the url is scrapped
         timeout = 0
+
+        print('Waiting for URL scrapped')
         while url in router.get_scrapping_url():
             timeout += 1
-            if timeout == 120:
+            if timeout == 20:
                 break
             time.sleep(1)
         
         if url not in router.get_storage_url_id().keys():
-            print('The Url can\'t be scrapped')
-            return
+            # Do process again
+
+            # select available scrapper node (random)
+            rd = router.get_scrapper_nodes_available()
+            if not rd and router.get_scrapping_url():
+                timeout = 0
+                while True:
+                    if timeout == 30:
+                        break
+                    time.sleep(1)
+                    timeout += 1
+                print('Request out of time')
+                return
+
+            if not rd:
+                print('Unavailable System')
+                router.scrapping_url_remove(url)
+                return
+            rd = rd[random.randint(0, len(rd) - 1)]
+            router.scrapper_nodes_available_remove(rd)
+            
+            # scrappe url
+            try:
+                node = Proxy(f'PYRONAME:user.chord.{rd}@{host__}:{port__}')
+                html = node.scrap_url(url)
+            except:
+                print('Scrapper Node is down... URL cannot be Scraped')
+                router.scrapper_nodes_remove(rd)
+                router.scrapping_url_remove(url)
+                return
+
+            if html is None:
+                print('The Url can\'t be scrapped')
+                if rd in router.get_scrapper_nodes():
+                    router.scrapper_nodes_available_add(rd)
+                return
+                
+            # del url to [scrapping_url] and putting the node available again
+            
+            if rd in router.get_scrapper_nodes():
+                router.scrapper_nodes_available_add(rd)
+            router.scrapping_url_remove(url)
+            
+            # select available storage node (random)
+            storage_nodes: list = router.get_storage_nodes()
+            if not storage_nodes:
+                print('Unavailable System: Storage not found')
+                return
+            rd = router.get_storage_nodes()
+            rd = rd[random.randint(0, len(rd) - 1)]
+            node = search_for_node(rd)
+
+            # add url into node and add (url: nodeid) to {storage_url_id}
+            filename = f'arch_{router.get_scrap_count()}'
+            router.storage_url_id_add(url, rd)
+            
+            if len(storage_nodes) > 1:
+                ind = storage_nodes.index(rd) + 1
+                if ind == len(storage_nodes):
+                    ind = 0
+                nextid = storage_nodes[ind]
+                router.storage_url_id_add(url, nextid)
+                nextnode = search_for_node(nextid)
+                nextnode.storage_html(url, html, filename)
+            
+            # print(url, router.get_storage_url_id())
+            node.storage_html(url, html, filename)
+            router.increment_scrap_count()
+            
+            # return html
+            print (f'The url is stored in file: downloads/{filename}')
+            return html
+        
 
         print('Searching in Data Base...')
         # get nodeid from storage_url_id 

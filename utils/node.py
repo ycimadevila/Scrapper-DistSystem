@@ -118,9 +118,10 @@ class ChordNode:
 
             html_bytes = page.read() # devuelve el html como una secuencia de bytes
             html = html_bytes.decode("utf-8") # convierte a string
+            print('Scrap Done!\n\nWaiting')
         except:
             html = None
-        print('Scrap Done!\n\nWaiting')
+            print('Scrap Fail!\n\nWaiting')
         return html
 
 
